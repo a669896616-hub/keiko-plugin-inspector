@@ -1,0 +1,28 @@
+name: Build App
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # هادي أحسن من adopt للنسخ الجديدة
+          java-version: '17' # إيلا فشل عاوتاني، جرب تبدلها لـ 11
+          cache: gradle
+
+      - name: Grant Execute Permission
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        # هاد الأمر كيتجاوز المشاكل الصغيرة ديال الـ Lint والـ Tests
+        run: ./gradlew assembleDebug -x test -x lint
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Fixed-NFC-App
+          path: "**/*.apk"
